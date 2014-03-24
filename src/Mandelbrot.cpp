@@ -14,9 +14,10 @@ void Mandelbrot::gen_fractal()
 	int height = get_height();
 	int width = get_width();
 	int MAX = 1000;
-	int i,j;
-	double z_r,z_i,a,b,c_r,c_i,temp,n;
+	int i,j,n;
+	double z_r,z_i,a,b,c_r,c_i,temp;
 	//iterate through rows
+	#pragma omp parallel for private(i,j,n,z_r,z_i,a,b,c_r,c_i,temp)
 	for (i = 1; i < height; i++)
 	{
 		b=i;
