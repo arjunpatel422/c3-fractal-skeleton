@@ -8,7 +8,6 @@ class Mandelbrot : public Fractal
 	Mandelbrot(int height, int width):Fractal(height, width) {}
     Mandelbrot(double x):Fractal(x) {}
 	void gen_fractal();
-        void color(int x, int y, int r, int g, int b);
 };
 
 
