@@ -1,3 +1,6 @@
+#ifndef _MANDELBROT_H
+#define _MANDELBROT_H
+
 #include <cmath>
 #include <cstdlib>
 #include "Fractal.h"
@@ -10,4 +13,4 @@ class Mandelbrot : public Fractal
 	void gen_fractal();
 };
 
-
+#endif

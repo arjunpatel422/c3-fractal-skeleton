@@ -1,5 +1,5 @@
-#ifndef FRACTAL_H
-#define FRACAL_H
+#ifndef _FRACTAL_H
+#define _FRACTAL_H
 
 #include<string>
 #include<cstdlib>
@@ -25,7 +25,7 @@ class Fractal
         bool save_file(string filepath) const;
 		unsigned int get_width() const;
 		unsigned int get_height() const;
-		virtual void color(const int* currentPosition, const int* r, const int* g, const int* b);
+		virtual void color(const int* currentPosition, const double* r, const double* g, const double* b);
     protected:
         unsigned char *m_bitmap;
 		unsigned int m_height;
