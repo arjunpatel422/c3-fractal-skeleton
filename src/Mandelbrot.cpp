@@ -36,6 +36,7 @@ void Mandelbrot::gen_fractal()
 		{
 			z_temp= n+1.5-log( log(modulus) / log2 ) / log2;
 			//z_temp=z_temp/(MAX);//z_temp=(mu/MAX);
+			z_temp*=abs(sin(MAX*z_r/(n*escape_radius))); //Makes image a lot more interesting swap n and MAX for interesting results
 			r=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.2));
 			g=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.7));
 			b=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.6));
