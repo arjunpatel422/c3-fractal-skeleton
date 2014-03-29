@@ -1,4 +1,4 @@
-all: objs/Fractal.o objs/Buddhabrot.o objs/Mandelbrot.o objs/mandelbrotgen.o objs/buddhabrotgen.o objs/lodepng.o mandelbrotgen buddhabrotgen
+all: mandelbrotgen buddhabrotgen
 
 mandelbrotgen:	objs/Fractal.o objs/Buddhabrot.o objs/Mandelbrot.o objs/mandelbrotgen.o objs/lodepng.o
 	g++ -fopenmp -g -o mandelbrotgen objs/Fractal.o  objs/Mandelbrot.o objs/mandelbrotgen.o objs/lodepng.o -ansi -pedantic -Wall -Wextra -O3
@@ -6,11 +6,26 @@ mandelbrotgen:	objs/Fractal.o objs/Buddhabrot.o objs/Mandelbrot.o objs/mandelbro
 buddhabrotgen: objs/Fractal.o objs/Buddhabrot.o objs/Mandelbrot.o objs/buddhabrotgen.o objs/lodepng.o
 	g++ -fopenmp -g -o buddhabrotgen objs/Fractal.o objs/Buddhabrot.o  objs/buddhabrotgen.o objs/lodepng.o -ansi -pedantic -Wall -Wextra -O3
 
-mandelbrot:
+configure:
+	mkdir objs
+	
+smallmandelbrot:
 	./mandelbrotgen 1 mandelbrot.png
 
-buddhabrot:
+mediummandelbrot:
+	./mandelbrotgen 3 mandelbrot.png
+
+largemandelbrot:
+	./mandelbrotgen 5 mandelbrot.png
+	
+smallbuddhabrot:
 	./buddhabrotgen 1 buddhabrot.png
+
+mediumbuddhabrot:
+	./buddhabrotgen 3 buddhabrot.png
+
+largebuddhabrot:
+	./buddhabrotgen 5 buddhabrot.png
 
 objs/Fractal.o: src/Fractal.cpp
 	g++ -fopenmp -g -c -o objs/Fractal.o src/Fractal.cpp

@@ -47,11 +47,10 @@ unsigned int Fractal::get_height() const
 	return m_height;
 }
 
-void Fractal::color(const int* currentPosition, const double* r, const double* g, const double* b)
+void Fractal::color(unsigned int* bitmapPosition, const double* r, const double* g, const double* b)
 {
-   int position=4*(*currentPosition);
-   m_bitmap[position++] = *r;
-   m_bitmap[position++] = *g;
-   m_bitmap[position++] = *b;
-   m_bitmap[position] = MAXCOLOR;
+   m_bitmap[(*bitmapPosition)++] = *r;
+   m_bitmap[(*bitmapPosition)++] = *g;
+   m_bitmap[(*bitmapPosition)++] = *b;
+   m_bitmap[(*bitmapPosition)] = MAXCOLOR;
 }

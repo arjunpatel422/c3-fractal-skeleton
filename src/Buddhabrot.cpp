@@ -1,26 +1,28 @@
 #include "Buddhabrot.h"
-#include <vector>
 using namespace std;
 
 void Buddhabrot::gen_fractal()
 {
 	// Real (-2.5, 1)
 	// Imaginary (-1, 1)
-	const int height = get_height();
-	const int width = get_width();
-	const int widthFactor=width/3.5;
-	const int heightFactor=height/2;
-	const int NPIXELS=width*height;
-	const int totalIterations=NPIXELS*3;
+	const unsigned int height = get_height();
+	const unsigned int width = get_width();
+	const double randWidthFactor=3.5;
+	const double randHeightFactor=2.0;
+	const unsigned int widthFactor=width/3.5;
+	const unsigned int heightFactor=height/2;
+	const unsigned int NPIXELS=width*height;
+	const unsigned int totalIterations=NPIXELS*3;
 	const double max_iter=MAXITER;
 	//const double max_iterPlus1=MAXITER+1;
 	const double escape_radius=4;
+	const double sinFactor=escape_radius/max_iter;
 	double maxValue=0;
     // Initialize a bucket array (one integer for each pixel) (this is the outer bucket array)
 	vector<int> outerPixelBucket(NPIXELS);
 	#pragma omp parallel
 	{	
-		int position,tempX,tempY;
+		unsigned int position,tempX,tempY,bitmapPosition;
 		vector<int> innerPixelBucket(NPIXELS,0);
 		double z_r,z_i,z_temp,n,c_r,c_i,modulus,r,g,b;
 		#pragma omp for
@@ -36,8 +38,8 @@ void Buddhabrot::gen_fractal()
 			vector<int> tempBucket(NPIXELS,0);
 			// Let C be a random point in the complex plane
 			//
-			c_r = rand() * ( 1.0 + 2.5 ) / RAND_MAX + -2.5;
-			c_i = rand() * ( 1.0 + 1.0 ) / RAND_MAX + -1.0;
+			c_r = rand() *randWidthFactor / RAND_MAX + -2.5;
+			c_i = rand() * randHeightFactor / RAND_MAX + -1.0;
 			// Trace the orbit of C, incrementing the temporary bucket 	that z falls in for each iteration
 			z_r = 0.0;
 			z_i = 0.0;
@@ -70,10 +72,10 @@ void Buddhabrot::gen_fractal()
 			#pragma omp atomic
 			outerPixelBucket[position]+=innerPixelBucket[position];
 		}
-		// Normalize the global bucket array by dividing each value	 by 	the maximum value
+		// Normalize the global bucket array by dividing each value	by the maximum value
 		// Color each pixel however you wish
 		//
-		// Parallelizing this function is tricky. It helps to have a list 	of temporary bucket arrays
+		// Parallelizing this function is tricky. It helps to have a list of temporary bucket arrays
 		// Which are merged after the computation has finished.
 		
 		#pragma omp single
@@ -83,16 +85,17 @@ void Buddhabrot::gen_fractal()
 				if(outerPixelBucket[position]>maxValue)
 					maxValue=outerPixelBucket[position];
 			}
-			maxValue=MAXCOLOR/maxValue;
+			maxValue=pow(maxValue,-1);
 		}
 		#pragma omp for
 		for(position=0;position<NPIXELS;position++)
 		{
-			z_temp=maxValue*outerPixelBucket[position];
-			r=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.2));
+			z_temp=(maxValue*outerPixelBucket[position]);
+			r=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.4));
 			g=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.7));
-			b=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.6));
-			color(&position,&r,&g,&b);
+			b=MAXCOLOR-MAXCOLOR*(pow(z_temp,-0.6)); 
+			bitmapPosition=position*4;
+			color(&bitmapPosition,&r,&g,&b);
 		}
 	}
 }
