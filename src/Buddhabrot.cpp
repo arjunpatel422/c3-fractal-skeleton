@@ -1,4 +1,5 @@
 #include "Buddhabrot.h"
+
 using namespace std;
 
 void Buddhabrot::gen_fractal()
@@ -18,6 +19,7 @@ void Buddhabrot::gen_fractal()
 	const double escape_radius=4;
 	const double sinFactor=escape_radius/max_iter;
 	double maxValue=0;
+	vector <vector<int> * > innerBucketsContainer;
     // Initialize a bucket array (one integer for each pixel) (this is the outer bucket array)
 	vector<int> outerPixelBucket(NPIXELS);
 	#pragma omp parallel
@@ -25,9 +27,6 @@ void Buddhabrot::gen_fractal()
 		unsigned int position,tempX,tempY,bitmapPosition;
 		vector<int> innerPixelBucket(NPIXELS,0);
 		double z_r,z_i,z_temp,n,c_r,c_i,modulus,r,g,b;
-		#pragma omp for
-		for(position=0;position<NPIXELS;position++)
-			outerPixelBucket[position]=0;
 		// iterate over the following
 		//several thousand times (at least more times than # of pixels)
 		#pragma omp for
@@ -67,16 +66,56 @@ void Buddhabrot::gen_fractal()
 			}
 		// Parallelizing is not required, but will save you a lot of time.
 		}
-		for(position=0;position<NPIXELS;position++)
-		{
-			#pragma omp atomic
-			outerPixelBucket[position]+=innerPixelBucket[position];
-		}
 		// Normalize the global bucket array by dividing each value	by the maximum value
 		// Color each pixel however you wish
 		//
 		// Parallelizing this function is tricky. It helps to have a list of temporary bucket arrays
 		// Which are merged after the computation has finished.
+		const int numberOfThreads=omp_get_num_threads();
+		int threadId=omp_get_thread_num();
+		int halfNumberOfThreads=numberOfThreads/2;
+		#pragma omp single
+		{
+			innerBucketsContainer.resize(numberOfThreads);
+		}
+		innerBucketsContainer[threadId]=&innerPixelBucket;
+		if(numberOfThreads%2)
+		{
+			tempX=numberOfThreads-1;
+			#pragma omp for
+			for(position=0;position<NPIXELS;position++)
+				outerPixelBucket[position]=(*(innerBucketsContainer[tempX]))[position];
+		}
+		else
+		{
+			#pragma omp for
+			for(position=0;position<NPIXELS;position++)
+				outerPixelBucket[position]=0;
+		}
+		
+		while(halfNumberOfThreads)
+		{
+			if(threadId<halfNumberOfThreads)
+			{
+				tempX=threadId+halfNumberOfThreads;
+				for(position=0;position<NPIXELS;position++)
+					innerPixelBucket[position]+=(*(innerBucketsContainer[tempX]))[position];
+			}
+			#pragma omp barrier
+			if(halfNumberOfThreads%2)
+			{
+				tempX=halfNumberOfThreads-1;
+				#pragma omp for
+				for(position=0;position<NPIXELS;position++)
+					outerPixelBucket[position]+=(*(innerBucketsContainer[tempX]))[position];
+			}
+			halfNumberOfThreads/=2;
+		}
+		#pragma omp for
+		for(position=0;position<NPIXELS;position++)
+		{
+			outerPixelBucket[position]+=(*(innerBucketsContainer[0]))[position];
+		}
 		
 		#pragma omp single
 		{
